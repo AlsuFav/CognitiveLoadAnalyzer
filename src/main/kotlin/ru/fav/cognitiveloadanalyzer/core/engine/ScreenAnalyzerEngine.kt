@@ -3,9 +3,9 @@ package ru.fav.cognitiveloadanalyzer.core.engine
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiFile
 import org.jetbrains.kotlin.psi.KtFile
-import ru.fav.cognitiveloadanalyzer.scanner.ComposableFunctionParser
-import ru.fav.cognitiveloadanalyzer.scanner.ComposableRegistry
-import ru.fav.cognitiveloadanalyzer.analyzer.compose.ComposeTreeBuilder
+import ru.fav.cognitiveloadanalyzer.scanner.screen.ComposableFunctionParser
+import ru.fav.cognitiveloadanalyzer.scanner.screen.ComposableRegistry
+import ru.fav.cognitiveloadanalyzer.scanner.screen.ComposeTreeBuilder
 import ru.fav.cognitiveloadanalyzer.analyzer.CognitiveLoadCalculator
 import ru.fav.cognitiveloadanalyzer.core.model.AnalysisScope
 import ru.fav.cognitiveloadanalyzer.core.model.ScreenAnalysisResult

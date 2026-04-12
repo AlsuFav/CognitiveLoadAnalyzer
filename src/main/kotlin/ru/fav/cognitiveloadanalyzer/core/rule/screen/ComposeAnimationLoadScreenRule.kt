@@ -1,8 +1,8 @@
 package ru.fav.cognitiveloadanalyzer.core.rule.screen
 
 import ru.fav.cognitiveloadanalyzer.analyzer.CriterionRegistry
-import ru.fav.cognitiveloadanalyzer.analyzer.compose.ComposeMetrics
-import ru.fav.cognitiveloadanalyzer.analyzer.compose.ComposeUiNode
+import ru.fav.cognitiveloadanalyzer.analyzer.screen.ComposeMetrics
+import ru.fav.cognitiveloadanalyzer.core.model.screen.ComposeUiNode
 import ru.fav.cognitiveloadanalyzer.core.model.CriterionResult
 import ru.fav.cognitiveloadanalyzer.core.model.RiskLevel
 

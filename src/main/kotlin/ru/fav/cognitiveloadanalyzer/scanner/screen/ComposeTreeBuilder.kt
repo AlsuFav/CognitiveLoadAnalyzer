@@ -1,8 +1,8 @@
-package ru.fav.cognitiveloadanalyzer.analyzer.compose
+package ru.fav.cognitiveloadanalyzer.scanner.screen
 
 import org.jetbrains.kotlin.psi.*
 import ru.fav.cognitiveloadanalyzer.core.model.AnalysisScope
-import ru.fav.cognitiveloadanalyzer.scanner.ComposableRegistry
+import ru.fav.cognitiveloadanalyzer.core.model.screen.ComposeUiNode
 
 class ComposeTreeBuilder(
     private val registry: ComposableRegistry? = null,

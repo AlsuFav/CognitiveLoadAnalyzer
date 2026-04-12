@@ -1,4 +1,7 @@
-package ru.fav.cognitiveloadanalyzer.analyzer.compose
+package ru.fav.cognitiveloadanalyzer.core.model.screen
+
+import ru.fav.cognitiveloadanalyzer.analyzer.screen.isNonVisualElement
+import ru.fav.cognitiveloadanalyzer.analyzer.screen.isSelfSufficientComponent
 
 data class ComposeUiNode(
     val name: String,

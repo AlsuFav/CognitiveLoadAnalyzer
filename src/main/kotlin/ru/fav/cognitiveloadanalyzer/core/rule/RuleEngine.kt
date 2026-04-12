@@ -1,6 +1,6 @@
 package ru.fav.cognitiveloadanalyzer.core.rule
 
-import ru.fav.cognitiveloadanalyzer.analyzer.compose.ComposeUiNode
+import ru.fav.cognitiveloadanalyzer.core.model.screen.ComposeUiNode
 import ru.fav.cognitiveloadanalyzer.core.model.CriterionResult
 import ru.fav.cognitiveloadanalyzer.core.rule.screen.ComposeAnimationLoadScreenRule
 import ru.fav.cognitiveloadanalyzer.core.rule.screen.ComposeClickableElementsScreenRule

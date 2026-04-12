@@ -1,4 +1,6 @@
-package ru.fav.cognitiveloadanalyzer.analyzer.compose
+package ru.fav.cognitiveloadanalyzer.analyzer.screen
+
+import ru.fav.cognitiveloadanalyzer.core.model.screen.ComposeUiNode
 
 object ComposeMetrics {
 

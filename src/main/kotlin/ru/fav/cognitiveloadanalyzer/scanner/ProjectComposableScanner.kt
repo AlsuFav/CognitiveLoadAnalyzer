@@ -7,6 +7,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileVisitor
 import com.intellij.psi.PsiManager
 import org.jetbrains.kotlin.psi.KtFile
+import ru.fav.cognitiveloadanalyzer.scanner.screen.ComposableFunctionParser
+import ru.fav.cognitiveloadanalyzer.scanner.screen.ComposableRegistry
 
 /**
  * Сканирует весь проект и находит все Composable функции

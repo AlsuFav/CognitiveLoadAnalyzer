@@ -1,4 +1,4 @@
-package ru.fav.cognitiveloadanalyzer.scanner
+package ru.fav.cognitiveloadanalyzer.scanner.screen
 
 import org.jetbrains.kotlin.psi.*
 

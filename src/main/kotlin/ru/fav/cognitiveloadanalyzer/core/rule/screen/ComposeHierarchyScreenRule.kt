@@ -1,8 +1,9 @@
 package ru.fav.cognitiveloadanalyzer.core.rule.screen
 
 import ru.fav.cognitiveloadanalyzer.analyzer.CriterionRegistry
-import ru.fav.cognitiveloadanalyzer.analyzer.compose.*
+import ru.fav.cognitiveloadanalyzer.analyzer.screen.*
 import ru.fav.cognitiveloadanalyzer.core.model.*
+import ru.fav.cognitiveloadanalyzer.core.model.screen.ComposeUiNode
 
 class ComposeHierarchyScreenRule : ScreenRule {
 
