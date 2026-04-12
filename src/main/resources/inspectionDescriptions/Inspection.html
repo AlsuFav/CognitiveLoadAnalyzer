@@ -1,0 +1,52 @@
+<html>
+<body>
+
+<p>
+    Detects user interface elements that increase cognitive load in Android applications.
+</p>
+
+<p>
+    The inspection analyzes Jetpack Compose code based on a set of cognitive load criteria (CLC1–CLC12).
+    It identifies problems such as:
+</p>
+
+<ul>
+    <li>High information density (CLC1)</li>
+    <li>Low text readability (CLC2)</li>
+    <li>Poor visual accessibility (CLC3)</li>
+    <li>Small touch targets (CLC4)</li>
+    <li>Missing semantic attributes (CLC5)</li>
+    <li>Complex animations and transitions (CLC6)</li>
+    <li>Irrelevant or excessive information (CLC7)</li>
+    <li>Difficult error recovery (CLC8)</li>
+    <li>Deep UI hierarchy (CLC9)</li>
+    <li>Low component reuse (CLC10)</li>
+    <li>Complex navigation paths (CLC11)</li>
+    <li>Unstable recomposition behavior (CLC12)</li>
+</ul>
+
+<p>
+    These issues may negatively affect usability, increase user effort,
+    and reduce overall efficiency of interaction with the application.
+</p>
+
+<pre><code>
+// Example (high cognitive load):
+Column {
+    Text("Item 1")
+    Text("Item 2")
+    Text("Item 3")
+    Text("Item 4")
+    Text("Item 5")
+}
+</code></pre>
+
+<!-- tooltip end -->
+
+<p>
+    This inspection is part of a cognitive load analysis system
+    for Android user interfaces developed using Jetpack Compose.
+</p>
+
+</body>
+</html>

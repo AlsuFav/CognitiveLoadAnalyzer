@@ -1,0 +1,35 @@
+<idea-plugin>
+    <id>ru.fav.cognitiveloadanalyzer</id>
+    <name>Cognitive Load Analyzer</name>
+    <version>1.0.0</version>
+
+    <vendor email="alsuf05@bk.ru">Alsu Favarisova</vendor>
+
+    <description><![CDATA[
+        Analyzes Android UI for cognitive load issues
+    ]]></description>
+
+    <idea-version since-build="242" until-build="253.*"/>
+
+    <!-- Dependencies -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+    <depends>org.jetbrains.kotlin</depends>
+    <depends>com.intellij.modules.xml</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+
+        <postStartupActivity implementation="ru.fav.cognitiveloadanalyzer.AnalyzerStartupActivity"/>
+        <localInspection
+                language="kotlin"
+                groupPath="Android"
+                groupName="Cognitive Load"
+                displayName="Cognitive Load Analysis (Compose)"
+                shortName="CognitiveLoadCompose"
+                implementationClass="ru.fav.cognitiveloadanalyzer.inspection.Inspection"
+                level="WARNING"
+                enabledByDefault="true"
+                runForWholeFile="true"/>
+
+    </extensions>
+</idea-plugin>
