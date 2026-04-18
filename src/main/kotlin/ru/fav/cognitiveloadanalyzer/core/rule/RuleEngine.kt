@@ -2,6 +2,8 @@ package ru.fav.cognitiveloadanalyzer.core.rule
 
 import ru.fav.cognitiveloadanalyzer.core.model.screen.ComposeUiNode
 import ru.fav.cognitiveloadanalyzer.core.model.CriterionResult
+import ru.fav.cognitiveloadanalyzer.core.model.navigation.NavigationGraph
+import ru.fav.cognitiveloadanalyzer.core.rule.navigation.NavigationComplexityRule
 import ru.fav.cognitiveloadanalyzer.core.rule.screen.ComposeAnimationLoadScreenRule
 import ru.fav.cognitiveloadanalyzer.core.rule.screen.ComposeClickableElementsScreenRule
 import ru.fav.cognitiveloadanalyzer.core.rule.screen.ComposeDensityScreenRule
@@ -16,7 +18,13 @@ class RuleEngine {
         ComposeAnimationLoadScreenRule()
     )
 
+    private val navigationRule = NavigationComplexityRule()
+
     fun runRulesForScreen(screenStructure: ComposeUiNode): List<CriterionResult> {
         return screenRules.map { it.evaluate(screenStructure) }
+    }
+
+    fun runRuleForNavigation(graph: NavigationGraph): CriterionResult {
+        return navigationRule.evaluate(graph)
     }
 }

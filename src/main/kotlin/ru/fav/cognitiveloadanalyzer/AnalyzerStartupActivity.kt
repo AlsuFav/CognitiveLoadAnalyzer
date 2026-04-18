@@ -6,21 +6,15 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
-import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.vfs.VfsUtilCore
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileVisitor
-import com.intellij.psi.PsiManager
-import org.jetbrains.kotlin.psi.KtFile
+import ru.fav.cognitiveloadanalyzer.scanner.ProjectFileScanner
 import ru.fav.cognitiveloadanalyzer.scanner.ProjectComposableScanner
 import ru.fav.cognitiveloadanalyzer.core.engine.ScreenAnalyzerEngine
+import ru.fav.cognitiveloadanalyzer.core.engine.NavigationAnalyzerEngine
 import ru.fav.cognitiveloadanalyzer.core.model.AnalysisScope
 
 class AnalyzerStartupActivity : StartupActivity.DumbAware {
 
     private val logger = Logger.getInstance(AnalyzerStartupActivity::class.java)
-    private val SKIP_DIRS = setOf("build", ".gradle", ".idea", "node_modules", "out")
-
     private val ANALYSIS_SCOPE = AnalysisScope.PROJECT_WIDE
 
     override fun runActivity(project: Project) {
@@ -37,50 +31,67 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
     }
 
     private fun analyze(project: Project) {
-        logger.info(">>> Step 1: Scanning project for Composable functions <<<")
-        val scanner = ProjectComposableScanner(project)
-        val registry = scanner.scanProject()
-        logger.info(">>> Found ${registry.size()} Composable functions <<<")
+        // ========================================
+        // Сканируем все файлы
+        // ========================================
+        logger.info(">>> Step 1: Scanning project files <<<")
+        val fileScanner = ProjectFileScanner(project)
+        val allKotlinFiles = fileScanner.scanAllKotlinFiles()
+        logger.info(">>> Found ${allKotlinFiles.size} Kotlin files <<<")
 
-        val engine = ScreenAnalyzerEngine(registry, logger, ANALYSIS_SCOPE)
-
-        val psiManager = PsiManager.getInstance(project)
-        val baseDir = project.basePath?.let {
-            LocalFileSystem.getInstance().findFileByPath(it)
-        }
-
-        if (baseDir == null) {
-            logger.warn(">>> Project base directory not found <<<")
+        if (allKotlinFiles.isEmpty()) {
+            logger.warn(">>> No Kotlin files found <<<")
             return
         }
 
-        val kotlinFiles = mutableListOf<VirtualFile>()
-        VfsUtilCore.visitChildrenRecursively(baseDir, object : VirtualFileVisitor<Void>() {
-            override fun visitFile(file: VirtualFile): Boolean {
-                if (file.isDirectory && file.name in SKIP_DIRS) {
-                    return false
-                }
-                if (!file.isDirectory && file.extension == "kt") {
-                    kotlinFiles.add(file)
-                }
-                return true
-            }
-        })
+        // ========================================
+        // Индексируем Composable функции
+        // ========================================
+        logger.info(">>> Step 2: Indexing Composable functions <<<")
+        val composableScanner = ProjectComposableScanner()
+        val registry = composableScanner.scanProject(allKotlinFiles)
+        logger.info(">>> Indexed ${registry.size()} Composable functions <<<")
 
-        logger.info(">>> Step 2: Analyzing ${kotlinFiles.size} Kotlin files <<<")
+        // ========================================
+        // Анализируем навигацию
+        // ========================================
+        logger.info(">>> Analyzing navigation <<<")
+        val navigationEngine = NavigationAnalyzerEngine(logger)
+        val navigationResult = navigationEngine.analyze(allKotlinFiles)
 
-        kotlinFiles.forEach { virtualFile ->
-            val psiFile = psiManager.findFile(virtualFile) as? KtFile ?: return@forEach
+        if (navigationResult != null) {
+            logger.warn("Navigation Analysis:")
+            logger.warn("  ${navigationResult.criterion.id} = ${navigationResult.value} (${navigationResult.riskLevel})")
+        } else {
+            logger.warn("Navigation analysis skipped (no navigation files found)")
+        }
 
-            val result = engine.analyze(psiFile)
+        // ========================================
+        // Анализируем экраны
+        // ========================================
+        logger.info(">>> Analyzing screens <<<")
+        val screenEngine = ScreenAnalyzerEngine(registry, logger, ANALYSIS_SCOPE)
+        val screenResults = screenEngine.analyzeAll(allKotlinFiles)
 
-            if (result != null) {
-                logger.warn("${result.screen}: CL = ${result.cognitiveLoad}")
-                result.criteria.forEach {
-                    logger.warn("${it.criterion.id} = ${it.value} (${it.riskLevel})")
-                }
+        logger.info(">>> Analyzed ${screenResults.size} screens <<<")
+
+        screenResults.forEach { result ->
+            logger.warn("${result.screen}: CL = ${result.cognitiveLoad}")
+            result.criteria.forEach { criterion ->
+                logger.warn("  ${criterion.criterion.id} = ${criterion.value} (${criterion.riskLevel})")
             }
         }
+
+        // ========================================
+        // Общая статистика
+        // ========================================
+        logger.info(">>> Analysis Summary <<<")
+        logger.info("  Total files: ${allKotlinFiles.size}")
+        logger.info("  Composables: ${registry.size()}")
+        logger.info("  Screens analyzed: ${screenResults.size}")
+
+        val avgCL = screenResults.map { it.cognitiveLoad }.average()
+        logger.warn("  Average Cognitive Load: ${"%.2f".format(avgCL)}")
 
         logger.info(">>> Cognitive Load Analysis FINISHED <<<")
     }

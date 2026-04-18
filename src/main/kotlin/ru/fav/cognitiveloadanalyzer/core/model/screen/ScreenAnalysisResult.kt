@@ -1,4 +1,6 @@
-package ru.fav.cognitiveloadanalyzer.core.model
+package ru.fav.cognitiveloadanalyzer.core.model.screen
+
+import ru.fav.cognitiveloadanalyzer.core.model.CriterionResult
 
 data class ScreenAnalysisResult(
     val screen: String,
