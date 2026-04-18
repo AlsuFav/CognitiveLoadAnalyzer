@@ -4,18 +4,18 @@ import ru.fav.cognitiveloadanalyzer.core.model.screen.ComposeUiNode
 import ru.fav.cognitiveloadanalyzer.core.model.CriterionResult
 import ru.fav.cognitiveloadanalyzer.core.model.navigation.NavigationGraph
 import ru.fav.cognitiveloadanalyzer.core.rule.navigation.NavigationComplexityRule
-import ru.fav.cognitiveloadanalyzer.core.rule.screen.ComposeAnimationLoadScreenRule
-import ru.fav.cognitiveloadanalyzer.core.rule.screen.ComposeClickableElementsScreenRule
-import ru.fav.cognitiveloadanalyzer.core.rule.screen.ComposeDensityScreenRule
-import ru.fav.cognitiveloadanalyzer.core.rule.screen.ComposeHierarchyScreenRule
+import ru.fav.cognitiveloadanalyzer.core.rule.screen.*
 
 class RuleEngine {
 
     private val screenRules = listOf(
-        ComposeDensityScreenRule(),
-        ComposeHierarchyScreenRule(),
-        ComposeClickableElementsScreenRule(),
-        ComposeAnimationLoadScreenRule()
+        ComposeDensityScreenRule(),           // CLC1
+        ComposeClickableElementsScreenRule(), // CLC4
+        SemanticCompletenessScreenRule(),     // CLC5
+        ComposeAnimationLoadScreenRule(),     // CLC6
+        ComposeTextDensityScreenRule(),       // CLC7
+        ComposeHierarchyScreenRule(),         // CLC9
+        ComposeReusabilityScreenRule()        // CLC10
     )
 
     private val navigationRule = NavigationComplexityRule()

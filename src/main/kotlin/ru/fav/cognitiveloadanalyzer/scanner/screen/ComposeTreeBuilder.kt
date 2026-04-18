@@ -47,9 +47,12 @@ class ComposeTreeBuilder(
                 }
 
                 if (isUiComposable(name)) {
+                    val parameters = extractParameters(expression)
+
                     val node = ComposeUiNode(
                         name = name,
                         depth = depth,
+                        parameters = parameters,
                     )
                     parent.children.add(node)
 
@@ -180,7 +183,7 @@ class ComposeTreeBuilder(
     }
 
     /**
-     * ИСПРАВЛЕНО: Избегаем дублирования лямбд
+     * Избегаем дублирования лямбд
      */
     private fun processLambdas(
         call: KtCallExpression,
@@ -249,5 +252,17 @@ class ComposeTreeBuilder(
         templateNode.children.forEach { child ->
             parent.children.add(child.deepCopy(child.depth))
         }
+    }
+
+    private fun extractParameters(call: KtCallExpression): Map<String, String> {
+        val params = mutableMapOf<String, String>()
+
+        call.valueArguments.forEach { arg ->
+            val paramName = arg.getArgumentName()?.asName?.asString() ?: return@forEach
+            val paramValue = arg.getArgumentExpression()?.text ?: ""
+            params[paramName] = paramValue
+        }
+
+        return params
     }
 }

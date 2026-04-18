@@ -6,6 +6,7 @@ import ru.fav.cognitiveloadanalyzer.analyzer.screen.isSelfSufficientComponent
 data class ComposeUiNode(
     val name: String,
     val depth: Int = 0,
+    val parameters: Map<String, String> = emptyMap(),
     val children: MutableList<ComposeUiNode> = mutableListOf()
 ) {
 

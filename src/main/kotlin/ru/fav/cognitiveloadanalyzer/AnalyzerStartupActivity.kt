@@ -79,6 +79,9 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
             logger.warn("${result.screen}: CL = ${result.cognitiveLoad}")
             result.criteria.forEach { criterion ->
                 logger.warn("  ${criterion.criterion.id} = ${criterion.value} (${criterion.riskLevel})")
+                criterion.details.forEach { (key, value) ->
+                    logger.info("      $key: $value")
+                }
             }
         }
 

@@ -18,7 +18,10 @@ class ComposeClickableElementsScreenRule : ScreenRule {
                 clickableCount > 12 -> RiskLevel.HIGH
                 clickableCount > 6 -> RiskLevel.MEDIUM
                 else -> RiskLevel.LOW
-            }
+            },
+            details = mapOf(
+                "clickableElements" to clickableCount,
+            )
         )
     }
 }
