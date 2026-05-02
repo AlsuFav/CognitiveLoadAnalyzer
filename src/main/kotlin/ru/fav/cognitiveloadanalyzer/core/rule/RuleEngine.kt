@@ -15,13 +15,18 @@ class RuleEngine {
         ComposeAnimationLoadScreenRule(),     // CLC6
         ComposeTextDensityScreenRule(),       // CLC7
         ComposeHierarchyScreenRule(),         // CLC9
-        ComposeReusabilityScreenRule()        // CLC10
     )
+
+    private val screensRule = listOf(ComposeReusabilityRule())
 
     private val navigationRule = NavigationComplexityRule()
 
     fun runRulesForScreen(screenStructure: ComposeUiNode): List<CriterionResult> {
         return screenRules.map { it.evaluate(screenStructure) }
+    }
+
+    fun runRulesForAllScreens(screens: List<ComposeUiNode>): List<CriterionResult> {
+        return screensRule.map { it.evaluate(screens) }
     }
 
     fun runRuleForNavigation(graph: NavigationGraph): CriterionResult {

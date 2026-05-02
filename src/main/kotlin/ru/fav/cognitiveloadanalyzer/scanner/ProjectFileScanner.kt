@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileVisitor
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
+import com.intellij.psi.xml.XmlFile
 import org.jetbrains.kotlin.psi.KtFile
 
 /**
@@ -41,5 +42,36 @@ class ProjectFileScanner(private val project: Project) {
         })
         
         return kotlinFiles.mapNotNull { psiManager.findFile(it) as? KtFile }
+    }
+
+    /**
+     * Собирает все .xml файлы в проекте
+     */
+    fun scanAllXmlFiles(): List<XmlFile> {
+        val psiManager = PsiManager.getInstance(project)
+
+        val baseDir = project.basePath?.let {
+            LocalFileSystem.getInstance().findFileByPath(it)
+        } ?: return emptyList()
+
+        val xmlFiles = mutableListOf<VirtualFile>()
+
+        VfsUtilCore.visitChildrenRecursively(baseDir, object : VirtualFileVisitor<Void>() {
+            override fun visitFile(file: VirtualFile): Boolean {
+                if (file.isDirectory && file.name in SKIP_DIRS) {
+                    return false
+                }
+
+                if (!file.isDirectory && file.extension == "xml") {
+                    xmlFiles.add(file)
+                }
+
+                return true
+            }
+        })
+
+        return xmlFiles.mapNotNull {
+            psiManager.findFile(it) as? XmlFile
+        }
     }
 }

@@ -103,28 +103,30 @@ object ComposeMetrics {
     /**
      * Переиспользование компонентов
      */
-    fun reusabilityMetrics(root: ComposeUiNode): ReusabilityResult {
-        val allComponents = mutableListOf<String>()
+    fun reusabilityMetrics(screens: List<ComposeUiNode>): ReusabilityResult {
+        val usage = mutableListOf<String>()
 
         fun collect(node: ComposeUiNode) {
-            allComponents.add(node.name.substringBefore("(").trim())
+            usage.add(node.name)
             node.children.forEach { collect(it) }
         }
 
-        collect(root)
+        screens.forEach { collect(it) }
 
-        val uniqueCount = allComponents.toSet().size
-        val totalCount = allComponents.size
+        val usageCount = usage.groupingBy { it }.eachCount()
 
-        val reusabilityRatio = if (totalCount > 0) {
-            (uniqueCount.toDouble() / totalCount) * 100
-        } else {
-            0.0
-        }
+        val totalUsages = usage.size
+        val uniqueComponents = usageCount.size
+
+        val reusedComponents = usageCount.count { it.value > 1 }
+
+        val reusabilityRatio = if (uniqueComponents > 0) {
+            (reusedComponents.toDouble() / uniqueComponents) * 100
+        } else 0.0
 
         return ReusabilityResult(
-            totalComponents = totalCount,
-            uniqueComponents = uniqueCount,
+            totalComponents = totalUsages,
+            uniqueComponents = uniqueComponents,
             reusabilityRatio = reusabilityRatio
         )
     }

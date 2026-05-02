@@ -7,7 +7,6 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import ru.fav.cognitiveloadanalyzer.scanner.ProjectFileScanner
-import ru.fav.cognitiveloadanalyzer.scanner.ProjectComposableScanner
 import ru.fav.cognitiveloadanalyzer.core.engine.ScreenAnalyzerEngine
 import ru.fav.cognitiveloadanalyzer.core.engine.NavigationAnalyzerEngine
 import ru.fav.cognitiveloadanalyzer.core.model.AnalysisScope
@@ -45,19 +44,11 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
         }
 
         // ========================================
-        // Индексируем Composable функции
-        // ========================================
-        logger.info(">>> Step 2: Indexing Composable functions <<<")
-        val composableScanner = ProjectComposableScanner()
-        val registry = composableScanner.scanProject(allKotlinFiles)
-        logger.info(">>> Indexed ${registry.size()} Composable functions <<<")
-
-        // ========================================
         // Анализируем навигацию
         // ========================================
         logger.info(">>> Analyzing navigation <<<")
-        val navigationEngine = NavigationAnalyzerEngine(logger)
-        val navigationResult = navigationEngine.analyze(allKotlinFiles)
+        val navigationEngine = NavigationAnalyzerEngine(allKotlinFiles, logger)
+        val navigationResult = navigationEngine.analyze()
 
         if (navigationResult != null) {
             logger.warn("Navigation Analysis:")
@@ -70,12 +61,12 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
         // Анализируем экраны
         // ========================================
         logger.info(">>> Analyzing screens <<<")
-        val screenEngine = ScreenAnalyzerEngine(registry, logger, ANALYSIS_SCOPE)
-        val screenResults = screenEngine.analyzeAll(allKotlinFiles)
+        val screenEngine = ScreenAnalyzerEngine(allKotlinFiles, logger, ANALYSIS_SCOPE)
+        val screenDetailedResults = screenEngine.analyzeAllDetailed()
 
-        logger.info(">>> Analyzed ${screenResults.size} screens <<<")
+        logger.info(">>> Analyzed ${screenDetailedResults.size} screens <<<")
 
-        screenResults.forEach { result ->
+        screenDetailedResults.forEach { result ->
             logger.warn("${result.screen}: CL = ${result.cognitiveLoad}")
             result.criteria.forEach { criterion ->
                 logger.warn("  ${criterion.criterion.id} = ${criterion.value} (${criterion.riskLevel})")
@@ -85,15 +76,22 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
             }
         }
 
-        // ========================================
-        // Общая статистика
-        // ========================================
+        val screenResults = screenEngine.analyzeAll()
+
+        logger.info(">>> Common info <<<")
+
+        screenResults.forEach { criterion ->
+            logger.warn("  ${criterion.criterion.id} = ${criterion.value} (${criterion.riskLevel})")
+            criterion.details.forEach { (key, value) ->
+                logger.info("      $key: $value")
+            }
+        }
+
         logger.info(">>> Analysis Summary <<<")
         logger.info("  Total files: ${allKotlinFiles.size}")
-        logger.info("  Composables: ${registry.size()}")
-        logger.info("  Screens analyzed: ${screenResults.size}")
+        logger.info("  Screens analyzed: ${screenDetailedResults.size}")
 
-        val avgCL = screenResults.map { it.cognitiveLoad }.average()
+        val avgCL = screenDetailedResults.map { it.cognitiveLoad }.average()
         logger.warn("  Average Cognitive Load: ${"%.2f".format(avgCL)}")
 
         logger.info(">>> Cognitive Load Analysis FINISHED <<<")
