@@ -81,7 +81,7 @@ object ComposeMetrics {
                     elementsWithSemantics++
                 }
             }
-            node.children.forEach { analyze(it) }
+            if (!node.isSelfSufficientComponent()) node.children.forEach { analyze(it) }
         }
 
         analyze(root)

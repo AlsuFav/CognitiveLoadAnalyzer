@@ -84,10 +84,10 @@ fun ComposeUiNode.hasSemanticMetadata(): Boolean {
     // Для элементов, которым не нужна семантика, считаем что она есть
     if (!needsSemantics()) return true
 
-    val hasContentDescription = name.contains("contentDescription", ignoreCase = true)
-    val hasLabel = name.contains("label", ignoreCase = true)
-    val hasPlaceholder = name.contains("placeholder", ignoreCase = true)
-    val hasText = name.contains("text", ignoreCase = true)
+    val hasContentDescription = parameters.getOrDefault("contentDescription", "").isNotEmpty()
+    val hasLabel = parameters.getOrDefault("label", "").isNotEmpty()
+    val hasPlaceholder = parameters.getOrDefault("placeholder", "").isNotEmpty()
+    val hasText = parameters.getOrDefault("text", "").isNotEmpty()
 
     return when {
         // Icon/Image должны иметь contentDescription

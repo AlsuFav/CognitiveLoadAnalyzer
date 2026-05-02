@@ -80,8 +80,7 @@ class NavigationPanel(private val project: Project) {
         }
     }
 
-    // ── Обновление данных ─────────────────────────────────────────────────
-
+    // Обновление данных
     fun update(report: AnalysisReport) {
         val nav = report.navigation
         if (nav.routes.isEmpty()) {
