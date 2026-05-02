@@ -53,4 +53,10 @@ object CriterionRegistry {
     )
 
     val all = listOf(CLC1, CLC4, CLC5, CLC6, CLC7, CLC9, CLC10, CLC11)
+
+    val totalWeight = all.sumOf { it.weight }
+
+    val screenWeight = listOf(
+        CLC1, CLC4, CLC5, CLC6, CLC7, CLC9
+    ).sumOf { it.weight }
 }

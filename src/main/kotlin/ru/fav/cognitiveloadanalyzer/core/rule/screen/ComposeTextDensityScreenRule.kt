@@ -13,7 +13,8 @@ class ComposeTextDensityScreenRule : ScreenRule {
 
         return CriterionResult(
             criterion = CriterionRegistry.CLC7,
-            value = textCount.toDouble(),
+            value = normalizeTextDensity(textCount),
+            rawValue = textCount.toDouble(),
             riskLevel = when {
                 // Слишком много текста (информационная перегрузка)
                 textCount > 20 -> RiskLevel.HIGH
@@ -27,8 +28,16 @@ class ComposeTextDensityScreenRule : ScreenRule {
                 else -> RiskLevel.LOW
             },
             details = mapOf(
-                "textElements" to textCount,
+                "text elements" to textCount,
             )
         )
+    }
+
+    private fun normalizeTextDensity(value: Int): Double = when {
+        value == 0 -> 100.0
+        value < 3 -> 70.0
+        value <= 12 -> 0.0
+        value <= 20 -> ((value - 12) / 8.0) * 70
+        else -> 100.0
     }
 }

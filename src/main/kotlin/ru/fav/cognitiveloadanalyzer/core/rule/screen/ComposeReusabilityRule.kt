@@ -13,17 +13,21 @@ class ComposeReusabilityRule : ScreensRule {
 
         return CriterionResult(
             criterion = CriterionRegistry.CLC10,
-            value = metrics.reusabilityRatio,
+            value = normalizeReusability(metrics.reusabilityRatio),
+            rawValue = metrics.reusabilityRatio,
             riskLevel = when {
                 metrics.reusabilityRatio < 20 -> RiskLevel.HIGH
                 metrics.reusabilityRatio < 50 -> RiskLevel.MEDIUM
                 else -> RiskLevel.LOW
             },
             details = mapOf(
-                "totalComponents" to metrics.totalComponents,
-                "uniqueComponents" to metrics.uniqueComponents,
-                "reusabilityRatio" to "%.1f%%".format(metrics.reusabilityRatio)
+                "total components" to metrics.totalComponents,
+                "unique components" to metrics.uniqueComponents,
+                "reusability ratio" to "%.1f%%".format(metrics.reusabilityRatio)
             )
         )
     }
+
+    private fun normalizeReusability(value: Double): Double =
+        (100.0 - value).coerceIn(0.0, 100.0)
 }

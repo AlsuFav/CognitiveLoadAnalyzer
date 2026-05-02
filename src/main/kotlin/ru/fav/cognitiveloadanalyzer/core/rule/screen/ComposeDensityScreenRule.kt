@@ -12,12 +12,19 @@ class ComposeDensityScreenRule : ScreenRule {
 
         return CriterionResult(
             criterion = CriterionRegistry.CLC1,
-            value = density.toDouble(),
+            value = normalizeDensity(density),
+            rawValue = density.toDouble(),
             riskLevel = when {
                 density > 20 -> RiskLevel.HIGH
                 density > 12 -> RiskLevel.MEDIUM
                 else -> RiskLevel.LOW
             },
+            details = mapOf(
+                "elements count" to density,
+            )
         )
     }
+
+    private fun normalizeDensity(value: Int): Double =
+        minOf((value / 20.0) * 100, 100.0)
 }

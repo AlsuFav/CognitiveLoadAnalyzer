@@ -13,15 +13,19 @@ class ComposeClickableElementsScreenRule : ScreenRule {
         
         return CriterionResult(
             criterion = CriterionRegistry.CLC4,
-            value = clickableCount.toDouble(),
+            value = normalizeClickable(clickableCount),
+            rawValue = clickableCount.toDouble(),
             riskLevel = when {
                 clickableCount > 12 -> RiskLevel.HIGH
                 clickableCount > 6 -> RiskLevel.MEDIUM
                 else -> RiskLevel.LOW
             },
             details = mapOf(
-                "clickableElements" to clickableCount,
+                "clickable elements" to clickableCount,
             )
         )
     }
+
+    private fun normalizeClickable(value: Int): Double =
+        minOf((value / 12.0) * 100, 100.0)
 }

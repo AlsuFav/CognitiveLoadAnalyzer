@@ -13,17 +13,21 @@ class SemanticCompletenessScreenRule : ScreenRule {
 
         return CriterionResult(
             criterion = CriterionRegistry.CLC5,
-            value = metrics.missingSemanticRatio,
+            value = normalizeSemanticMissing(metrics.missingSemanticRatio),
+            rawValue = metrics.missingSemanticRatio,
             riskLevel = when {
                 metrics.missingSemanticRatio > 40 -> RiskLevel.HIGH
                 metrics.missingSemanticRatio > 20 -> RiskLevel.MEDIUM
                 else -> RiskLevel.LOW
             },
             details = mapOf(
-                "totalElementsWithSemanticsNeed" to metrics.totalElements,
-                "withSemantics" to metrics.elementsWithSemantics,
-                "withoutSemantics" to metrics.elementsWithoutSemantics
+                "total elements with semantics need" to metrics.totalElements,
+                "with semantics" to metrics.elementsWithSemantics,
+                "without semantics" to metrics.elementsWithoutSemantics
             )
         )
     }
+
+    private fun normalizeSemanticMissing(value: Double): Double =
+        minOf((value / 40.0) * 100, 100.0)
 }

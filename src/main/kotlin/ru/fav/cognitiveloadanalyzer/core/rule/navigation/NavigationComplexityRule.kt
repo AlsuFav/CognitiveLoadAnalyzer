@@ -13,12 +13,23 @@ class NavigationComplexityRule : NavigationRule {
         
         return CriterionResult(
             criterion = CriterionRegistry.CLC11,
-            value = metrics.complexityScore,
+            value = normalizeNavigation(metrics.complexityScore),
+            rawValue = metrics.complexityScore,
             riskLevel = when {
                 metrics.complexityScore > 70 -> RiskLevel.HIGH
                 metrics.complexityScore > 40 -> RiskLevel.MEDIUM
                 else -> RiskLevel.LOW
             },
+            details = mapOf(
+                "transition count" to metrics.transitionCount,
+                "cyclic transitions count" to metrics.cyclicTransitionsCount,
+                "max outgoing transitions" to metrics.maxOutgoingTransitions,
+                "avg outgoing transitions" to metrics.avgOutgoingTransitions,
+                "max navigation depth" to metrics.maxNavigationDepth,
+            )
         )
     }
+
+    private fun normalizeNavigation(value: Double): Double =
+        minOf((value / 70.0) * 100, 100.0)
 }

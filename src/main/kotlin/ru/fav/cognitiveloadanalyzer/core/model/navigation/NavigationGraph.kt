@@ -6,29 +6,22 @@ data class NavigationGraph(
 ) {
     fun print(): String {
         val sb = StringBuilder()
-
         sb.appendLine("Navigation Graph:")
         sb.appendLine("Routes: ${routes.size}")
         sb.appendLine("Transitions: ${transitions.size}")
 
-        // Группируем переходы по источнику
         val transitionsBySource = transitions.groupBy { it.from }
 
         routes.forEach { route ->
             val outgoing = transitionsBySource[route] ?: emptyList()
             val incoming = transitions.count { it.to == route }
-
             sb.appendLine()
             sb.appendLine(route)
             sb.appendLine("   Incoming: $incoming")
             sb.appendLine("   Outgoing: ${outgoing.size}")
-
-            outgoing.forEach { transition ->
-                sb.appendLine("      ${transition.to}")
-            }
+            outgoing.forEach { sb.appendLine("      ${it.to}") }
         }
 
-        // Выводим циклы, если есть
         val cycles = findCycles()
         if (cycles.isNotEmpty()) {
             sb.appendLine()
@@ -41,7 +34,8 @@ data class NavigationGraph(
         return sb.toString()
     }
 
-    private fun findCycles(): List<List<String>> {
+    // было private → теперь internal, доступно внутри модуля плагина
+    fun findCycles(): List<List<String>> {
         val cycles = mutableListOf<List<String>>()
         val visited = mutableSetOf<String>()
         val recStack = mutableSetOf<String>()
@@ -51,17 +45,13 @@ data class NavigationGraph(
             recStack.add(node)
             path.add(node)
 
-            val neighbors = transitions.filter { it.from == node }.map { it.to }
-
-            for (neighbor in neighbors) {
+            transitions.filter { it.from == node }.map { it.to }.forEach { neighbor ->
                 if (neighbor !in visited) {
                     dfs(neighbor, path)
                 } else if (neighbor in recStack) {
-                    // Найден цикл
                     val cycleStart = path.indexOf(neighbor)
                     if (cycleStart >= 0) {
-                        val cycle = path.subList(cycleStart, path.size).toList()
-                        cycles.add(cycle)
+                        cycles.add(path.subList(cycleStart, path.size).toList())
                     }
                 }
             }
@@ -70,24 +60,13 @@ data class NavigationGraph(
             recStack.remove(node)
         }
 
-        routes.forEach { route ->
-            if (route !in visited) {
-                dfs(route, mutableListOf())
-            }
-        }
+        routes.forEach { if (it !in visited) dfs(it, mutableListOf()) }
 
-        // Убираем дубли и нормализуем циклы
-        return cycles
-            .map { normalizeCycle(it) }
-            .distinct()
+        return cycles.map { normalizeCycle(it) }.distinct()
     }
 
-    /**
-     * Нормализует цикл (начинаем с минимального элемента)
-     */
     private fun normalizeCycle(cycle: List<String>): List<String> {
         if (cycle.isEmpty()) return cycle
-
         val minIndex = cycle.indices.minByOrNull { cycle[it] } ?: 0
         return cycle.subList(minIndex, cycle.size) + cycle.subList(0, minIndex)
     }

@@ -19,17 +19,27 @@
 
     <extensions defaultExtensionNs="com.intellij">
 
-        <postStartupActivity implementation="ru.fav.cognitiveloadanalyzer.AnalyzerStartupActivity"/>
-        <localInspection
-                language="kotlin"
-                groupPath="Android"
-                groupName="Cognitive Load"
-                displayName="Cognitive Load Analysis (Compose)"
-                shortName="CognitiveLoadCompose"
-                implementationClass="ru.fav.cognitiveloadanalyzer.inspection.Inspection"
-                level="WARNING"
-                enabledByDefault="true"
-                runForWholeFile="true"/>
+        <postStartupActivity
+                implementation="ru.fav.cognitiveloadanalyzer.AnalyzerStartupActivity"/>
+
+        <!-- Tool Window -->
+        <toolWindow
+                id="Cognitive Load"
+                anchor="bottom"
+                factoryClass="ru.fav.cognitiveloadanalyzer.ui.CognitiveLoadToolWindowFactory"
+                icon="/icons/cognitive_load.svg"
+                canCloseContents="false"/>
+
+<!--        <localInspection-->
+<!--                language="kotlin"-->
+<!--                groupPath="Android"-->
+<!--                groupName="Cognitive Load"-->
+<!--                displayName="Cognitive Load Analysis (Compose)"-->
+<!--                shortName="CognitiveLoadCompose"-->
+<!--                implementationClass="ru.fav.cognitiveloadanalyzer.inspection.Inspection"-->
+<!--                level="WARNING"-->
+<!--                enabledByDefault="true"-->
+<!--                runForWholeFile="true"/>-->
 
     </extensions>
 </idea-plugin>

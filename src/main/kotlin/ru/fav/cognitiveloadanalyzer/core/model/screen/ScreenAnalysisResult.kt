@@ -4,6 +4,8 @@ import ru.fav.cognitiveloadanalyzer.core.model.CriterionResult
 
 data class ScreenAnalysisResult(
     val screen: String,
+    val filePath: String,
     val criteria: List<CriterionResult>,
-    val cognitiveLoad: Double
+    val cognitiveLoad: Double,
+    val screenTree: String,
 )

@@ -12,12 +12,19 @@ class ComposeHierarchyScreenRule : ScreenRule {
 
         return CriterionResult(
             criterion = CriterionRegistry.CLC9,
-            value = depth.toDouble(),
+            value = normalizeDepth(depth),
+            rawValue = depth.toDouble(),
             riskLevel = when {
                 depth > 10 -> RiskLevel.HIGH
                 depth > 6 -> RiskLevel.MEDIUM
                 else -> RiskLevel.LOW
-            }
+            },
+            details = mapOf(
+                "compose hierarchy depth" to depth,
+            )
         )
     }
+
+    private fun normalizeDepth(value: Int): Double =
+        minOf((value / 10.0) * 100, 100.0)
 }
