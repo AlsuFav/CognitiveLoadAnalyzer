@@ -2,7 +2,8 @@ package ru.fav.cognitiveloadanalyzer.core.model.navigation
 
 data class NavigationGraph(
     val routes: List<String>,
-    val transitions: List<NavigationTransition>
+    val entryPoints: List<RouteEntryPoint> = emptyList(),
+    val transitions: List<NavigationTransition>,
 ) {
     fun print(): String {
         val sb = StringBuilder()

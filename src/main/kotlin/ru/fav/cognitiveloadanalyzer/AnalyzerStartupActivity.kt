@@ -15,10 +15,7 @@ import ru.fav.cognitiveloadanalyzer.core.model.RiskLevel
 import ru.fav.cognitiveloadanalyzer.core.model.navigation.NavigationAnalysisResult
 import ru.fav.cognitiveloadanalyzer.core.model.screen.ScreenAnalysisResult
 import ru.fav.cognitiveloadanalyzer.scanner.ProjectFileScanner
-import ru.fav.cognitiveloadanalyzer.ui.model.AnalysisReport
-import ru.fav.cognitiveloadanalyzer.ui.model.UiNavigationResult
-import ru.fav.cognitiveloadanalyzer.ui.model.UiScreenResult
-import ru.fav.cognitiveloadanalyzer.ui.model.UiTransition
+import ru.fav.cognitiveloadanalyzer.ui.model.*
 import ru.fav.cognitiveloadanalyzer.ui.quickfix.QuickFixFactory
 import ru.fav.cognitiveloadanalyzer.ui.service.AnalysisReportService
 
@@ -112,7 +109,14 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
                 UiTransition(from = t.from, to = t.to)
             },
             cycles = navigationAnalysis.graph.findCycles(),
-            quickFixes = QuickFixFactory.buildNavFixes(navigationAnalysis.criterion)
+            quickFixes = QuickFixFactory.buildNavFixes(navigationAnalysis.criterion),
+            entryPoints = navigationAnalysis.graph.entryPoints.map { ep ->
+                UiEntryPoint(
+                    route = ep.route,
+                    type  = ep.type.name,
+                    label = ep.label
+                )
+            },
         )
 
         return AnalysisReport(

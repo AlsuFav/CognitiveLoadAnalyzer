@@ -48,6 +48,8 @@ class NavigationPanel(private val project: Project) {
                 is QuickFixSuggestion -> detailPanel.showFix(uo)
                 is NavRouteNode -> detailPanel.showRoute(uo)
                 is NavCycleNode -> detailPanel.showCycle(uo)
+                is NavEntryPointNode  -> detailPanel.showEntryPoint(uo)
+                is NavEntryGroupNode  -> detailPanel.showEntryGroup(uo)
             }
         }
 
@@ -111,10 +113,38 @@ class NavigationPanel(private val project: Project) {
         )
         treeRoot.add(criterionNode)
 
-        // 2. Узел маршрутов
+        // 2. Entry Points
+        if (nav.entryPoints.isNotEmpty()) {
+            val entryNode = DefaultMutableTreeNode(
+                "Entry Points (${nav.entryPoints.size})"
+            )
+            // Группируем по типу
+            nav.entryPoints
+                .groupBy { it.type }
+                .forEach { (type, points) ->
+                    val typeNode = DefaultMutableTreeNode(
+                        NavEntryGroupNode(typeLabel(type), iconForType(type))
+                    )
+                    points.forEach { ep ->
+                        typeNode.add(
+                            DefaultMutableTreeNode(
+                                NavEntryPointNode(
+                                    route = ep.route,
+                                    type  = ep.type,
+                                    label = ep.label
+                                )
+                            )
+                        )
+                    }
+                    entryNode.add(typeNode)
+                }
+            treeRoot.add(entryNode)
+        }
+
+        // 3. Узел маршрутов
         val routesNode = DefaultMutableTreeNode("Routes (${nav.routes.size})")
         nav.routes.forEach { route ->
-            val incoming = nav.transitions.count { it.to == route }
+            val incoming = nav.transitions.count { it.to == route } + nav.entryPoints.count { it.route == route }
             val outgoing = nav.transitions.filter { it.from == route }
             routesNode.add(
                 DefaultMutableTreeNode(
@@ -128,7 +158,7 @@ class NavigationPanel(private val project: Project) {
         }
         treeRoot.add(routesNode)
 
-        // 3. Узел циклов (если есть)
+        // 4. Узел циклов (если есть)
         if (nav.cycles.isNotEmpty()) {
             val cyclesNode = DefaultMutableTreeNode("⚠ Cycles (${nav.cycles.size})")
             nav.cycles.forEachIndexed { index, cycle ->
@@ -144,7 +174,7 @@ class NavigationPanel(private val project: Project) {
             treeRoot.add(cyclesNode)
         }
 
-        // 4. Quick fixes
+        // 5. Quick fixes
         if (nav.quickFixes.isNotEmpty()) {
             val fixesNode = DefaultMutableTreeNode("💡 Suggestions (${nav.quickFixes.size})")
             nav.quickFixes.forEach { fix ->
@@ -184,6 +214,35 @@ class NavigationPanel(private val project: Project) {
         val index: Int,
         val path: List<String>
     )
+
+    data class NavEntryGroupNode(
+        val label: String,
+        val iconKey: String
+    )
+
+    data class NavEntryPointNode(
+        val route: String,
+        val type: String,
+        val label: String?
+    )
+
+    private fun typeLabel(type: String) = when (type) {
+        "BOTTOM_NAVIGATION" -> "⬇ Bottom Navigation"
+        "DRAWER"            -> "☰ Navigation Drawer"
+        "TOP_BAR"           -> "⬆ Top Bar"
+        "DEEP_LINK"         -> "🔗 Deep Links"
+        "START_DESTINATION" -> "▶ Start Destination"
+        else                -> type
+    }
+
+    private fun iconForType(type: String) = when (type) {
+        "BOTTOM_NAVIGATION" -> "bottom_nav"
+        "DRAWER"            -> "drawer"
+        "TOP_BAR"           -> "top_bar"
+        "DEEP_LINK"         -> "deep_link"
+        "START_DESTINATION" -> "start"
+        else                -> "unknown"
+    }
 
     // Рендерер
 
@@ -245,6 +304,29 @@ class NavigationPanel(private val project: Project) {
 
                 is String -> {
                     append(uo, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
+                }
+
+                is NavEntryGroupNode -> {
+                    icon = com.intellij.icons.AllIcons.Nodes.Folder
+                    append(uo.label, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
+                }
+
+                is NavEntryPointNode -> {
+                    icon = when (uo.type) {
+                        "BOTTOM_NAVIGATION" -> com.intellij.icons.AllIcons.Nodes.Plugin
+                        "DRAWER"            -> com.intellij.icons.AllIcons.Actions.ListFiles
+                        "TOP_BAR"           -> com.intellij.icons.AllIcons.Actions.MoveToTopLeft
+                        "DEEP_LINK"         -> com.intellij.icons.AllIcons.Ide.Link
+                        "START_DESTINATION" -> com.intellij.icons.AllIcons.RunConfigurations.TestState.Run
+                        else                -> com.intellij.icons.AllIcons.Nodes.Package
+                    }
+                    append(uo.route, SimpleTextAttributes.REGULAR_ATTRIBUTES)
+                    if (uo.label != null) {
+                        append(
+                            "  \"${uo.label}\"",
+                            SimpleTextAttributes.GRAYED_SMALL_ATTRIBUTES
+                        )
+                    }
                 }
             }
         }

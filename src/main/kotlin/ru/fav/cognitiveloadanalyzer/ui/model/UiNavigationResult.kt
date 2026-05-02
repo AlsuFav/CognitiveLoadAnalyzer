@@ -7,5 +7,6 @@ data class UiNavigationResult(
     val routes: List<String>,
     val transitions: List<UiTransition>,
     val cycles: List<List<String>>,
-    val quickFixes: List<QuickFixSuggestion>
+    val quickFixes: List<QuickFixSuggestion>,
+    val entryPoints: List<UiEntryPoint> = emptyList()
 )
