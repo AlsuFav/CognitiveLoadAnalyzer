@@ -17,6 +17,6 @@ object RiskLevelColors {
     fun forCognitiveLoad(cl: Double) = when {
         cl >= 70.0 -> HIGH
         cl >= 40.0 -> MEDIUM
-        else      -> LOW
+        else -> LOW
     }
 }

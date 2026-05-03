@@ -5,17 +5,15 @@ import org.jetbrains.kotlin.psi.*
 object BottomNavItemParser {
 
     data class BottomNavEntry(
-        val objectName: String,  // "Categories", "Favourites"
-        val route: String,       // "Route.Categories"
-        val label: String?       // из titleResId или label параметра
+        val objectName: String,
+        val route: String,
+        val label: String?
     )
 
     /**
      * Ищет sealed class у которых:
      * - есть параметр route: Route (или похожий тип)
      * - объекты внутри задают route = Route.X
-     *
-     * Покрывает паттерн BottomNavItem
      */
     fun parse(files: List<KtFile>): Map<String, BottomNavEntry> {
         val result = mutableMapOf<String, BottomNavEntry>()
@@ -56,7 +54,6 @@ object BottomNavItemParser {
 
         sealedClass.body?.declarations?.forEach { decl ->
             when (decl) {
-                // data object Categories : BottomNavItem(...)
                 is KtObjectDeclaration -> {
                     if (decl.name == "Companion") return@forEach
                     val entry = extractFromObject(decl) ?: return@forEach
@@ -73,7 +70,6 @@ object BottomNavItemParser {
         return result
     }
 
-    // data object Categories : BottomNavItem(route = Route.Categories, ...)
     private fun extractFromObject(obj: KtObjectDeclaration): BottomNavEntry? {
         val objectName = obj.name ?: return null
 
@@ -107,7 +103,7 @@ object BottomNavItemParser {
         return BottomNavEntry(objectName = className, route = route, label = label)
     }
 
-    // Извлекаем route = Route.Categories из аргументов конструктора
+    // Извлекаем route из аргументов конструктора
     private fun extractRouteArg(args: List<KtValueArgument>): String? {
         // Ищем именованный аргумент route = ...
         args.forEach { arg ->
@@ -120,24 +116,21 @@ object BottomNavItemParser {
     }
 
     private fun extractRouteText(expr: KtExpression?): String? = when (expr) {
-        is KtDotQualifiedExpression  -> expr.text   // Route.Categories
-        is KtNameReferenceExpression -> expr.text   // Categories (если импортировано)
-        is KtCallExpression          -> expr.calleeExpression?.text  // Route.Categories()
+        is KtDotQualifiedExpression  -> expr.text
+        is KtNameReferenceExpression -> expr.text
+        is KtCallExpression -> expr.calleeExpression?.text
         else -> null
     }
 
-    // Извлекаем label из titleResId или label аргумента
     private fun extractLabelArg(args: List<KtValueArgument>): String? {
         args.forEach { arg ->
             val name = arg.getArgumentName()?.text ?: return@forEach
-            // titleResId = R.string.poses_tab_title → берём последний сегмент
             if (name.contains("title", ignoreCase = true) ||
                 name.contains("label", ignoreCase = true)
             ) {
                 val expr = arg.getArgumentExpression()
                 return when (expr) {
                     is KtDotQualifiedExpression ->
-                        // R.string.poses_tab_title → "poses_tab_title"
                         expr.text.substringAfterLast('.')
                     is KtStringTemplateExpression ->
                         expr.text.trim('"')

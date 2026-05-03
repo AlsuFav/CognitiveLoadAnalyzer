@@ -20,7 +20,7 @@ data class NavigationGraph(
             sb.appendLine(route)
             sb.appendLine("   Incoming: $incoming")
             sb.appendLine("   Outgoing: ${outgoing.size}")
-            outgoing.forEach { sb.appendLine("      ${it.to}") }
+            outgoing.forEach { sb.appendLine("      ${it.to} ${it.type}") }
         }
 
         val cycles = findCycles()
@@ -35,35 +35,71 @@ data class NavigationGraph(
         return sb.toString()
     }
 
-    // было private → теперь internal, доступно внутри модуля плагина
-    fun findCycles(): List<List<String>> {
-        val cycles = mutableListOf<List<String>>()
-        val visited = mutableSetOf<String>()
-        val recStack = mutableSetOf<String>()
+    fun calculateMaxDepth(): Int {
+        val startRoute = entryPoints
+            .firstOrNull { it.type == EntryPointType.START_DESTINATION }
+            ?.route
+            ?: routes.firstOrNull()
+            ?: return 0
 
-        fun dfs(node: String, path: MutableList<String>) {
-            visited.add(node)
-            recStack.add(node)
-            path.add(node)
+        val adjacency = transitions
+            .groupBy { it.from }
+            .mapValues { (_, transitions) -> transitions.map { it.to } }
 
-            transitions.filter { it.from == node }.map { it.to }.forEach { neighbor ->
-                if (neighbor !in visited) {
-                    dfs(neighbor, path)
-                } else if (neighbor in recStack) {
-                    val cycleStart = path.indexOf(neighbor)
-                    if (cycleStart >= 0) {
-                        cycles.add(path.subList(cycleStart, path.size).toList())
-                    }
-                }
-            }
+        fun dfs(
+            node: String,
+            visited: Set<String>
+        ): Int {
+            if (node in visited) return 0
 
-            path.removeAt(path.lastIndex)
-            recStack.remove(node)
+            val neighbors = adjacency[node].orEmpty()
+
+            if (neighbors.isEmpty()) return 0
+
+            return 1 + (neighbors.maxOfOrNull { neighbor ->
+                dfs(neighbor, visited + node)
+            } ?: 0)
         }
 
-        routes.forEach { if (it !in visited) dfs(it, mutableListOf()) }
+        return dfs(startRoute, emptySet())
+    }
 
-        return cycles.map { normalizeCycle(it) }.distinct()
+    fun findCycles(): List<List<String>> {
+        val cycles = mutableListOf<List<String>>()
+
+        val adjacency = transitions
+            .filter { it.type != NavigationType.CLEARING_STACK }
+            .groupBy { it.from }
+            .mapValues { (_, edges) -> edges.map { it.to } }
+
+        fun dfs(
+            node: String,
+            path: MutableList<String>,
+            stack: MutableSet<String>
+        ) {
+            if (node in stack) {
+                val cycleStart = path.indexOf(node)
+                if (cycleStart >= 0) {
+                    cycles.add(path.subList(cycleStart, path.size).toList())
+                }
+                return
+            }
+
+            stack.add(node)
+            path.add(node)
+
+            adjacency[node].orEmpty().forEach { neighbor ->
+                dfs(neighbor, path.toMutableList(), stack.toMutableSet())
+            }
+        }
+
+        routes.forEach { route ->
+            dfs(route, mutableListOf(), mutableSetOf())
+        }
+
+        return cycles
+            .map(::normalizeCycle)
+            .distinct()
     }
 
     private fun normalizeCycle(cycle: List<String>): List<String> {

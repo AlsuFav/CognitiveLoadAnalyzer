@@ -3,6 +3,7 @@ package ru.fav.cognitiveloadanalyzer.scanner.navigation
 import org.jetbrains.kotlin.psi.*
 import ru.fav.cognitiveloadanalyzer.core.model.navigation.NavigationCall
 import ru.fav.cognitiveloadanalyzer.core.model.navigation.NavigationTransition
+import ru.fav.cognitiveloadanalyzer.core.model.navigation.NavigationType
 
 /**
  * Парсит функции *EntryBuilder и извлекает переходы из entry<Route> блоков
@@ -56,8 +57,8 @@ object EntryBuilderParser {
                         // Связываем Route с экраном
                         navCalls.forEach { call ->
                             transitions.add(NavigationTransition(
-                                from = routeType,  // Route.Auth
-                                to = call.destination,  // AuthRoute.Login
+                                from = routeType,
+                                to = call.destination,
                                 type = call.type
                             ))
                         }
@@ -112,7 +113,7 @@ object EntryBuilderParser {
     private fun extractNavigationCallsFromLambdas(entryCall: KtCallExpression): List<NavigationCall> {
         val calls = mutableListOf<NavigationCall>()
 
-        // Ищем в trailing lambda: entry<...> { SplashScreen(...) }
+        // Ищем в trailing lambda
         entryCall.lambdaArguments.forEach { lambdaArg ->
             lambdaArg.getLambdaExpression()?.bodyExpression?.let { body ->
                 findNavigationCallsDeep(body, calls)
@@ -137,7 +138,7 @@ object EntryBuilderParser {
             is KtCallExpression -> {
                 val callName = expression.calleeExpression?.text ?: ""
 
-                // Проверяем, это вызов навигации?
+                // Проверяем, это вызов навигации
                 if (isNavigationCall(callName)) {
                     val destination = extractDestination(expression)
                     if (destination != null) {
@@ -148,7 +149,7 @@ object EntryBuilderParser {
                     }
                 }
 
-                // Ищем в лямбдах-параметрах (navigateToLogin = { ... })
+                // Ищем в лямбдах-параметрах
                 expression.valueArguments.forEach { arg ->
                     when (val argExpr = arg.getArgumentExpression()) {
                         is KtLambdaExpression -> {
@@ -183,11 +184,10 @@ object EntryBuilderParser {
                callName.contains("navigateTo", ignoreCase = true)
     }
 
-    private fun extractNavigationType(callName: String): String {
+    private fun extractNavigationType(callName: String): NavigationType {
         return when {
-            callName.contains("navigateClearingStack") -> "navigateClearingStack"
-            callName.contains("navigateBack") -> "navigateBack"
-            else -> "navigate"
+            callName.contains("clearingStack", ignoreCase = true) -> NavigationType.CLEARING_STACK
+            else -> NavigationType.NORMAL
         }
     }
 

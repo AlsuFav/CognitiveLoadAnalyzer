@@ -59,7 +59,7 @@ class NavigationDetailPanel {
             if (node.outgoing.isNotEmpty()) {
                 appendLine()
                 appendLine("── Navigates to ─────────────────────")
-                node.outgoing.forEach { t -> appendLine("  → ${t.to}") }
+                node.outgoing.forEach { t -> appendLine("  → ${t.to} (${t.type})") }
             }
         }
         contentArea.caretPosition = 0

@@ -106,7 +106,7 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
             criterion = navigationAnalysis.criterion,
             routes = navigationAnalysis.graph.routes,
             transitions = navigationAnalysis.graph.transitions.map { t ->
-                UiTransition(from = t.from, to = t.to)
+                UiTransition(from = t.from, to = t.to, type =  t.type.name)
             },
             cycles = navigationAnalysis.graph.findCycles(),
             quickFixes = QuickFixFactory.buildNavFixes(navigationAnalysis.criterion),

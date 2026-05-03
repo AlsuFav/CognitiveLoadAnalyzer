@@ -7,7 +7,7 @@ import ru.fav.cognitiveloadanalyzer.core.model.navigation.NavigationTransition
 class NavigationGraphBuilder {
 
     fun build(navigationFiles: List<KtFile>): NavigationGraph {
-        val routes      = mutableSetOf<String>()
+        val routes = mutableSetOf<String>()
         val transitions = mutableListOf<NavigationTransition>()
 
         navigationFiles.forEach { file ->

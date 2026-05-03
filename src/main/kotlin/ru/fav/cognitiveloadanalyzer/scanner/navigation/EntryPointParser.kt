@@ -93,7 +93,7 @@ object EntryPointParser {
             }
         })
 
-        // Если forEach не нашёл — пробуем прямые маршруты
+        // Если forEach не нашёл - пробуем прямые маршруты
         if (result.isEmpty()) {
             call.accept(object : KtTreeVisitorVoid() {
                 override fun visitCallExpression(expression: KtCallExpression) {
