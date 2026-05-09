@@ -10,10 +10,16 @@ object CriterionRegistry {
         weight = 0.20
     )
 
+    val CLC2 = CognitiveCriterion(
+        id = "CLC2",
+        name = "Text Readability Index",
+        weight = 0.10
+    )
+
     val CLC4 = CognitiveCriterion(
         id = "CLC4",
         name = "Touch Target Analysis",
-        weight = 0.1333
+        weight = 0.10
     )
 
     val CLC5 = CognitiveCriterion(
@@ -37,13 +43,13 @@ object CriterionRegistry {
     val CLC9 = CognitiveCriterion(
         id = "CLC9",
         name = "Hierarchy Complexity",
-        weight = 0.1333
+        weight = 0.10
     )
 
     val CLC10 = CognitiveCriterion(
         id = "CLC10",
         name = "Reusability",
-        weight = 0.1333
+        weight = 0.10
     )
 
     val CLC11 = CognitiveCriterion(

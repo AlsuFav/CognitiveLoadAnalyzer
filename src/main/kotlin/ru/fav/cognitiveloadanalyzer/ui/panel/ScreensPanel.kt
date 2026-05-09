@@ -40,7 +40,6 @@ class ScreensPanel(private val project: Project) {
             when (val uo = node.userObject) {
                 is UiScreenResult    -> detailPanel.showScreen(uo)
                 is CriterionResult   -> detailPanel.showCriterion(uo)
-                is QuickFixSuggestion -> detailPanel.showQuickFix(uo)
             }
         }
 
@@ -70,14 +69,6 @@ class ScreensPanel(private val project: Project) {
 
             screen.criteria.forEach { criterion ->
                 val criterionNode = DefaultMutableTreeNode(criterion)
-
-                // Quick fixes прикрепляем к нужному критерию
-                screen.quickFixes
-                    .filter { it.actionId.contains(criterion.criterion.id) }
-                    .forEach { fix ->
-                        criterionNode.add(DefaultMutableTreeNode(fix))
-                    }
-
                 screenNode.add(criterionNode)
             }
 
@@ -156,12 +147,6 @@ class ScreensPanel(private val project: Project) {
                             SimpleTextAttributes.GRAYED_SMALL_ATTRIBUTES
                         )
                     }
-                }
-
-                // Quick fix
-                is QuickFixSuggestion -> {
-                    icon = com.intellij.icons.AllIcons.Actions.IntentionBulb
-                    append("💡 ${uo.title}", SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES)
                 }
             }
         }

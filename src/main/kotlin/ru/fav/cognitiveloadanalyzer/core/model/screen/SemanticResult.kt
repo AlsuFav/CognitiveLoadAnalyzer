@@ -7,5 +7,6 @@ data class SemanticResult(
     val totalElements: Int,
     val elementsWithSemantics: Int,
     val elementsWithoutSemantics: Int,
-    val missingSemanticRatio: Double  // 0-100%
+    val missingSemanticRatio: Double, // 0-100%
+    val nodes: List<ComposeUiNode>,
 )

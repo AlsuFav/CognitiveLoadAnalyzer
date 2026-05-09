@@ -96,26 +96,6 @@ class ScreenDetailPanel(private val project: Project) {
         tabs.selectedIndex = 0
     }
 
-    // Показ quick fix
-
-    fun showQuickFix(fix: QuickFixSuggestion) {
-        titleLabel.text = "💡 ${fix.title}"
-        titleLabel.foreground = JBUI.CurrentTheme.Label.foreground()
-
-        criteriaArea.text = fix.description
-        criteriaArea.caretPosition = 0
-
-        fixButton.actionListeners.toList()
-            .forEach { fixButton.removeActionListener(it) }
-
-        fixButton.isVisible = fix.canAutoFix
-        if (fix.canAutoFix) {
-            fixButton.text = "Apply Fix"
-            fixButton.addActionListener { applyFix(fix) }
-        }
-        tabs.selectedIndex = 0
-    }
-
     // Построение текста
     private fun buildCriteriaText(screen: UiScreenResult): String {
         val sb = StringBuilder()
@@ -143,6 +123,7 @@ class ScreenDetailPanel(private val project: Project) {
             sb.appendLine("── Suggestions ───────────────────────────────")
             screen.quickFixes.forEach { fix ->
                 sb.appendLine("💡 ${fix.title}")
+                sb.appendLine("💡 ${fix.description}")
             }
         }
 
@@ -162,11 +143,16 @@ class ScreenDetailPanel(private val project: Project) {
                 sb.appendLine("  $k: $v")
             }
         }
+
+        criterion.quickFixSuggestion?.let { suggestion ->
+            sb.appendLine()
+            sb.appendLine("── Suggestion ───────────────────────────────")
+            sb.appendLine("💡 ${suggestion.title}")
+            sb.appendLine("💡 ${suggestion.description}")
+        }
+
         return sb.toString()
     }
-
-    // ── Утилиты ───────────────────────────────────────────────────────────
-
     private fun riskMark(level: RiskLevel) = when (level) {
         RiskLevel.HIGH   -> "⚠"
         RiskLevel.MEDIUM -> "~"

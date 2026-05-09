@@ -8,6 +8,7 @@ import com.intellij.ui.components.JBTabbedPane
 import com.intellij.util.ui.JBUI
 import ru.fav.cognitiveloadanalyzer.ui.model.AnalysisReport
 import ru.fav.cognitiveloadanalyzer.ui.panel.NavigationPanel
+import ru.fav.cognitiveloadanalyzer.ui.panel.ResourcesPanel
 import ru.fav.cognitiveloadanalyzer.ui.panel.ScreensPanel
 import ru.fav.cognitiveloadanalyzer.ui.panel.SummaryPanel
 import ru.fav.cognitiveloadanalyzer.ui.service.AnalysisReportService
@@ -26,6 +27,7 @@ class CognitiveLoadToolWindowPanel(private val project: Project) {
     private val summaryPanel = SummaryPanel(project)
     private val screensPanel = ScreensPanel(project)
     private val navigationPanel = NavigationPanel(project)
+    private val resourcesPanel = ResourcesPanel(project)
 
     // Статус
     private val statusLabel = JBLabel("Ready. Run analysis to see results.")
@@ -58,6 +60,7 @@ class CognitiveLoadToolWindowPanel(private val project: Project) {
         tabbedPane.addTab("📊 Summary", summaryPanel.getComponent())
         tabbedPane.addTab("🖥 Screens", screensPanel.getComponent())
         tabbedPane.addTab("🗺 Navigation", navigationPanel.getComponent())
+        tabbedPane.addTab("📝 Resources", resourcesPanel.getComponent())
         rootPanel.add(tabbedPane, BorderLayout.CENTER)
     }
 
@@ -82,6 +85,7 @@ class CognitiveLoadToolWindowPanel(private val project: Project) {
         summaryPanel.update(report)
         screensPanel.update(report)
         navigationPanel.update(report)
+        resourcesPanel.update(report)
 
         val time = java.text.SimpleDateFormat("HH:mm:ss").format(report.timestamp)
         statusLabel.text = "Last analysis: $time | " +

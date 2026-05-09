@@ -173,15 +173,6 @@ class NavigationPanel(private val project: Project) {
             }
             treeRoot.add(cyclesNode)
         }
-
-        // 5. Quick fixes
-        if (nav.quickFixes.isNotEmpty()) {
-            val fixesNode = DefaultMutableTreeNode("💡 Suggestions (${nav.quickFixes.size})")
-            nav.quickFixes.forEach { fix ->
-                fixesNode.add(DefaultMutableTreeNode(fix))
-            }
-            treeRoot.add(fixesNode)
-        }
     }
 
     private fun expandAll() {
@@ -295,11 +286,6 @@ class NavigationPanel(private val project: Project) {
                             RiskLevelColors.HIGH
                         )
                     )
-                }
-
-                is QuickFixSuggestion -> {
-                    icon = com.intellij.icons.AllIcons.Actions.IntentionBulb
-                    append(uo.title, SimpleTextAttributes.LINK_PLAIN_ATTRIBUTES)
                 }
 
                 is String -> {

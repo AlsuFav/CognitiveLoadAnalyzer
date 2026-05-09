@@ -8,11 +8,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import ru.fav.cognitiveloadanalyzer.analyzer.CognitiveLoadCalculator
 import ru.fav.cognitiveloadanalyzer.core.engine.NavigationAnalyzerEngine
+import ru.fav.cognitiveloadanalyzer.core.engine.ResourcesAnalyzerEngine
 import ru.fav.cognitiveloadanalyzer.core.engine.ScreenAnalyzerEngine
 import ru.fav.cognitiveloadanalyzer.core.model.AnalysisScope
 import ru.fav.cognitiveloadanalyzer.core.model.CriterionResult
 import ru.fav.cognitiveloadanalyzer.core.model.RiskLevel
 import ru.fav.cognitiveloadanalyzer.core.model.navigation.NavigationAnalysisResult
+import ru.fav.cognitiveloadanalyzer.core.model.resource.ResourcesAnalysisResult
 import ru.fav.cognitiveloadanalyzer.core.model.screen.ScreenAnalysisResult
 import ru.fav.cognitiveloadanalyzer.scanner.ProjectFileScanner
 import ru.fav.cognitiveloadanalyzer.ui.model.*
@@ -38,6 +40,7 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
         logger.info(">>> Step 1: Scanning project files <<<")
         val fileScanner = ProjectFileScanner(project)
         val allKotlinFiles = fileScanner.scanAllKotlinFiles()
+        val allXmlFiles = fileScanner.scanAllXmlFiles()
         logger.info(">>> Found ${allKotlinFiles.size} Kotlin files <<<")
 
         if (allKotlinFiles.isEmpty()) {
@@ -50,8 +53,11 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
         val navigationEngine = NavigationAnalyzerEngine(allKotlinFiles, logger)
         val navigationAnalysis = navigationEngine.analyze()   // NavigationAnalysisResult?
 
+        logger.info(">>> Step 3: Analyzing resources <<<")
+        val resourcesAnalysis = ResourcesAnalyzerEngine(allXmlFiles).analyze()
+
         // 3. Экраны: детальный анализ
-        logger.info(">>> Step 3: Analyzing screens <<<")
+        logger.info(">>> Step 4: Analyzing screens <<<")
         val screenEngine = ScreenAnalyzerEngine(allKotlinFiles, logger, analysisScope)
         val screenDetailedResults = screenEngine.analyzeAllDetailed()
         logger.info(">>> Analyzed ${screenDetailedResults.size} screens <<<")
@@ -66,13 +72,19 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
         }
 
         // 5. Строим отчёт и публикуем
-        val avgCL = CognitiveLoadCalculator.calculate(listOf(navigationAnalysis.criterion) + screenDetailedResults.flatMap { it.criteria } + commonCriteria)
+        val avgCL = CognitiveLoadCalculator.calculate(
+            listOf(navigationAnalysis.criterion) +
+                    listOf(resourcesAnalysis.criterion) +
+                    screenDetailedResults.flatMap { it.criteria } +
+                    commonCriteria
+        )
         val report = buildReport(
             totalFiles = allKotlinFiles.size,
             screenResults = screenDetailedResults,
             navigationAnalysis = navigationAnalysis,
             commonCriteria = commonCriteria,
             averageCognitiveLoad = avgCL,
+            resourcesAnalysis = resourcesAnalysis,
         )
 
         AnalysisReportService.getInstance(project).updateReport(report)
@@ -86,17 +98,23 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
         totalFiles: Int,
         screenResults: List<ScreenAnalysisResult>,
         navigationAnalysis: NavigationAnalysisResult,
+        resourcesAnalysis: ResourcesAnalysisResult,
         commonCriteria: List<CriterionResult>,
         averageCognitiveLoad: Double,
     ): AnalysisReport {
 
         val uiScreens = screenResults.map { result ->
+            val quickFixes = QuickFixFactory.buildFixes(result)
             UiScreenResult(
                 screenName = result.screen,
                 filePath = result.filePath,
                 cognitiveLoad = result.cognitiveLoad,
                 riskLevel = cognitiveLoadToRisk(result.cognitiveLoad),
-                criteria = result.criteria,
+                criteria = result.criteria.map { criterion ->
+                    criterion.copy(
+                        quickFixSuggestion = quickFixes.firstOrNull { it.criterionId == criterion.criterion.id }
+                    )
+                },
                 quickFixes = QuickFixFactory.buildFixes(result),
                 screenTree = result.screenTree,
             )
@@ -119,10 +137,15 @@ class AnalyzerStartupActivity : StartupActivity.DumbAware {
             },
         )
 
+        val uiResources = UiResourcesResult(
+            criterion = resourcesAnalysis.criterion,
+        )
+
         return AnalysisReport(
             totalFiles = totalFiles,
             screens = uiScreens,
             navigation = uiNavigation,
+            resources = uiResources,
             averageCognitiveLoad = averageCognitiveLoad,
             commonCriteria = commonCriteria
         )

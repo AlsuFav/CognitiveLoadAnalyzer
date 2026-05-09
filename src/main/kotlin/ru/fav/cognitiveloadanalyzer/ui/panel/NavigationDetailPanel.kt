@@ -73,7 +73,7 @@ class NavigationDetailPanel {
             appendLine()
             appendLine(node.path.joinToString(" → "))
             appendLine()
-            appendLine("── How to fix ───────────────────────")
+            appendLine("How to fix:")
             appendLine("• Use popUpTo() with inclusive=true to clear back stack")
             appendLine("• Replace cycle with explicit back navigation (.navigateUp())")
             appendLine("• Review if both directions are intentional")

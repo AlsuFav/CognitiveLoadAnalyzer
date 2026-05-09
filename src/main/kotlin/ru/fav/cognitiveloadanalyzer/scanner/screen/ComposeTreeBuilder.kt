@@ -15,7 +15,11 @@ class ComposeTreeBuilder(
 
     fun build(function: KtNamedFunction): ComposeUiNode {
         visitedFunctions.clear()
-        val root = ComposeUiNode(function.name ?: "Root", depth = 0)
+        val root = ComposeUiNode(
+            name = function.name ?: "Root",
+            depth = 0,
+            sourceFile = contextFile,
+        )
         function.fqName?.asString()?.let { visitedFunctions.add(it) }
 
         function.bodyExpression?.let {
@@ -53,6 +57,8 @@ class ComposeTreeBuilder(
                         name = name,
                         depth = depth,
                         parameters = parameters,
+                        psiElement = expression,
+                        sourceFile = expression.containingKtFile,
                     )
                     parent.children.add(node)
 

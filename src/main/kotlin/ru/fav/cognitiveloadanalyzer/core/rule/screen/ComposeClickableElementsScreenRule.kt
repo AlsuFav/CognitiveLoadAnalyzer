@@ -9,7 +9,8 @@ import ru.fav.cognitiveloadanalyzer.core.model.RiskLevel
 class ComposeClickableElementsScreenRule : ScreenRule {
     
     override fun evaluate(screenStructure: ComposeUiNode): CriterionResult {
-        val clickableCount = ComposeMetrics.clickableElementsCount(screenStructure)
+        val clickableElements = ComposeMetrics.getClickableElements(screenStructure)
+        val clickableCount = clickableElements.size
         
         return CriterionResult(
             criterion = CriterionRegistry.CLC4,
@@ -21,7 +22,8 @@ class ComposeClickableElementsScreenRule : ScreenRule {
                 else -> RiskLevel.LOW
             },
             details = mapOf(
-                "clickable elements" to clickableCount,
+                "clickable elements count" to clickableCount,
+                "clickable elements" to clickableElements,
             )
         )
     }

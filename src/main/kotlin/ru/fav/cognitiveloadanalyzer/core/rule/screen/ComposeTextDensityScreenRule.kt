@@ -9,7 +9,8 @@ import ru.fav.cognitiveloadanalyzer.core.model.screen.ComposeUiNode
 class ComposeTextDensityScreenRule : ScreenRule {
 
     override fun evaluate(screenStructure: ComposeUiNode): CriterionResult {
-        val textCount = ComposeMetrics.textElementsCount(screenStructure)
+        val textElements = ComposeMetrics.getTextElements(screenStructure)
+        val textCount = textElements.size
 
         return CriterionResult(
             criterion = CriterionRegistry.CLC7,
@@ -28,7 +29,8 @@ class ComposeTextDensityScreenRule : ScreenRule {
                 else -> RiskLevel.LOW
             },
             details = mapOf(
-                "text elements" to textCount,
+                "text elements count" to textCount,
+                "text elements" to textElements,
             )
         )
     }

@@ -6,6 +6,7 @@ data class AnalysisReport(
     val timestamp: Long = System.currentTimeMillis(),
     val totalFiles: Int,
     val screens: List<UiScreenResult>,
+    val resources: UiResourcesResult,
     val navigation: UiNavigationResult,
     val averageCognitiveLoad: Double,
     val commonCriteria: List<CriterionResult> = emptyList(),

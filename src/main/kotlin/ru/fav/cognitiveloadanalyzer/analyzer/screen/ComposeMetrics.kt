@@ -24,46 +24,46 @@ object ComposeMetrics {
     /**
      * Количество интерактивных элементов
      */
-    fun clickableElementsCount(node: ComposeUiNode): Int {
+    fun getClickableElements(node: ComposeUiNode): List<ComposeUiNode> {
         return when {
             // Если это кликабельный элемент - считаем его (не детей)
-            node.isClickable() -> 1
+            node.isClickable() -> listOf(node)
 
             // Если есть дети - рекурсивно считаем
-            node.children.isNotEmpty() -> node.children.sumOf { clickableElementsCount(it) }
+            node.children.isNotEmpty() -> node.children.flatMap { getClickableElements(it) }
 
-            else -> 0
+            else -> emptyList()
         }
     }
 
     /**
      * Количество анимаций
      */
-    fun animationCount(node: ComposeUiNode): Int {
+    fun getAnimation(node: ComposeUiNode): List<ComposeUiNode> {
         return when {
             // Если это анимация - считаем
-            node.isAnimation() -> 1
+            node.isAnimation() -> listOf(node)
 
             // Рекурсивно в детях
-            node.children.isNotEmpty() -> node.children.sumOf { animationCount(it) }
+            node.children.isNotEmpty() -> node.children.flatMap { getAnimation(it) }
 
-            else -> 0
+            else -> emptyList()
         }
     }
 
     /**
      * Количество текстовых элементов
      */
-    fun textElementsCount(node: ComposeUiNode): Int {
+    fun getTextElements(node: ComposeUiNode): List<ComposeUiNode> {
         return when {
-            // Если это текстовый элемент без детей - считаем
-            node.isTextElement() && node.children.isEmpty() -> 1
+            // Текстовый элемент
+            node.isTextElement() -> listOf(node)
 
-            // Если есть дети - рекурсивно считаем в детях
-            node.children.isNotEmpty() -> node.children.sumOf { textElementsCount(it) }
+            // Рекурсивно собираем из детей
+            node.children.isNotEmpty() -> node.children.flatMap { getTextElements(it) }
 
             // Не текстовый и без детей
-            else -> 0
+            else -> emptyList()
         }
     }
 
@@ -73,10 +73,12 @@ object ComposeMetrics {
     fun semanticCompleteness(root: ComposeUiNode): SemanticResult {
         var totalElements = 0
         var elementsWithSemantics = 0
+        var nodes = mutableListOf<ComposeUiNode>()
 
         fun analyze(node: ComposeUiNode) {
             if (node.needsSemantics()) {
                 totalElements++
+                nodes.add(node)
                 if (node.hasSemanticMetadata()) {
                     elementsWithSemantics++
                 }
@@ -96,7 +98,8 @@ object ComposeMetrics {
             totalElements = totalElements,
             elementsWithSemantics = elementsWithSemantics,
             elementsWithoutSemantics = totalElements - elementsWithSemantics,
-            missingSemanticRatio = missingSemanticRatio
+            missingSemanticRatio = missingSemanticRatio,
+            nodes = nodes,
         )
     }
 

@@ -3,7 +3,9 @@ package ru.fav.cognitiveloadanalyzer.core.rule
 import ru.fav.cognitiveloadanalyzer.core.model.screen.ComposeUiNode
 import ru.fav.cognitiveloadanalyzer.core.model.CriterionResult
 import ru.fav.cognitiveloadanalyzer.core.model.navigation.NavigationGraph
+import ru.fav.cognitiveloadanalyzer.core.model.resource.ResourceString
 import ru.fav.cognitiveloadanalyzer.core.rule.navigation.NavigationComplexityRule
+import ru.fav.cognitiveloadanalyzer.core.rule.resources.TextReadabilityRule
 import ru.fav.cognitiveloadanalyzer.core.rule.screen.*
 
 class RuleEngine {
@@ -21,6 +23,8 @@ class RuleEngine {
 
     private val navigationRule = NavigationComplexityRule()
 
+    private val resourcesRule = TextReadabilityRule()
+
     fun runRulesForScreen(screenStructure: ComposeUiNode): List<CriterionResult> {
         return screenRules.map { it.evaluate(screenStructure) }
     }
@@ -31,5 +35,9 @@ class RuleEngine {
 
     fun runRuleForNavigation(graph: NavigationGraph): CriterionResult {
         return navigationRule.evaluate(graph)
+    }
+
+    fun runRuleForResources(strings: List<ResourceString>): CriterionResult {
+        return resourcesRule.evaluate(strings)
     }
 }

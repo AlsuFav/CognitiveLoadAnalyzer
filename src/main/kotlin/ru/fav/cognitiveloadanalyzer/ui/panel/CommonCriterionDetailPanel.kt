@@ -6,8 +6,6 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
 import ru.fav.cognitiveloadanalyzer.core.model.CriterionResult
 import ru.fav.cognitiveloadanalyzer.core.model.RiskLevel
-import ru.fav.cognitiveloadanalyzer.ui.model.QuickFixSuggestion
-import ru.fav.cognitiveloadanalyzer.ui.quickfix.QuickFixFactory
 import ru.fav.cognitiveloadanalyzer.ui.util.RiskLevelColors
 import ru.fav.cognitiveloadanalyzer.ui.util.formatValue
 import java.awt.BorderLayout
@@ -53,15 +51,6 @@ class CommonCriterionDetailPanel(private val project: Project) {
 
         contentArea.text = buildText(criterion)
         contentArea.caretPosition = 0
-
-        // Ищем подходящие fixes
-        val fixes = QuickFixFactory.buildNavFixes(criterion)
-            .plus(
-                // Пробуем screen-fixes через заглушку ScreenAnalysisResult
-                emptyList<QuickFixSuggestion>()
-            )
-
-        setupFixButton(fixes.firstOrNull())
     }
 
     // Текст деталей
@@ -98,44 +87,17 @@ class CommonCriterionDetailPanel(private val project: Project) {
 
         criterion.criterion.id.contains("CLC10") -> """
             Reusability ratio is low.
+            
+            How to fix:
             • Extract repeated composables into shared components
             • Create a design-system module with common UI elements
             • Use slots pattern for flexible reuse
-        """.trimIndent()
-
-        criterion.criterion.id.contains("NAV") -> """
-            Navigation complexity is high.
-            • Split into nested navigation graphs
-            • Reduce number of top-level destinations
         """.trimIndent()
 
         else -> """
             Risk level is ${criterion.riskLevel}.
             Review the details above and consider refactoring.
         """.trimIndent()
-    }
-
-    // Fix кнопка
-
-    private fun setupFixButton(fix: QuickFixSuggestion?) {
-        // Сбрасываем старые listeners
-        fixButton.actionListeners.toList()
-            .forEach { fixButton.removeActionListener(it) }
-
-        if (fix == null) {
-            fixButton.isVisible = false
-            return
-        }
-
-        fixButton.isVisible  = fix.canAutoFix
-        fixButton.text       = "Apply Fix: ${fix.title}"
-        fixButton.addActionListener {
-            com.intellij.openapi.ui.Messages.showInfoMessage(
-                project,
-                fix.description,
-                "Fix: ${fix.title}"
-            )
-        }
     }
 
     fun getComponent() = rootPanel

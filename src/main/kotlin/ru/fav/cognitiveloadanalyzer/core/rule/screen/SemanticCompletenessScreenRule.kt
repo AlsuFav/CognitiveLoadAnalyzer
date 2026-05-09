@@ -23,7 +23,8 @@ class SemanticCompletenessScreenRule : ScreenRule {
             details = mapOf(
                 "total elements with semantics need" to metrics.totalElements,
                 "with semantics" to metrics.elementsWithSemantics,
-                "without semantics" to metrics.elementsWithoutSemantics
+                "without semantics" to metrics.elementsWithoutSemantics,
+                "elements with semantics need" to metrics.nodes,
             )
         )
     }

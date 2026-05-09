@@ -15,8 +15,8 @@ class ComposeHierarchyScreenRule : ScreenRule {
             value = normalizeDepth(depth),
             rawValue = depth.toDouble(),
             riskLevel = when {
-                depth > 10 -> RiskLevel.HIGH
-                depth > 6 -> RiskLevel.MEDIUM
+                depth > 12 -> RiskLevel.HIGH
+                depth > 8 -> RiskLevel.MEDIUM
                 else -> RiskLevel.LOW
             },
             details = mapOf(

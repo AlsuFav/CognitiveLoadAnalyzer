@@ -9,7 +9,8 @@ import ru.fav.cognitiveloadanalyzer.core.model.RiskLevel
 class ComposeAnimationLoadScreenRule : ScreenRule {
     
     override fun evaluate(screenStructure: ComposeUiNode): CriterionResult {
-        val animationCount = ComposeMetrics.animationCount(screenStructure)
+        val animations = ComposeMetrics.getAnimation(screenStructure)
+        val animationCount = animations.size
         
         return CriterionResult(
             criterion = CriterionRegistry.CLC6,
@@ -21,7 +22,8 @@ class ComposeAnimationLoadScreenRule : ScreenRule {
                 else -> RiskLevel.LOW
             },
             details = mapOf(
-                "animation elements" to animationCount,
+                "animation elements count" to animationCount,
+                "animation elements" to animations,
             )
         )
     }
